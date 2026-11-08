@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>Machine Learning Lab — Practical Experiments</title>
+<style>
+:root{
+  color-scheme:dark; --bg:#0b1220;--panel:#111c2e;--panel2:#17243a;--line:#26364e;
+  --text:#e8eef8;--muted:#9aabc2;--accent:#82b4ff;--accent2:#a6d5c4;
+  --code:#08111f;--good:#8fd3b1;--shadow:0 12px 34px rgba(0,0,0,.22)
+}
+[data-theme="light"]{
+  color-scheme:light;--bg:#f3f6fb;--panel:#fff;--panel2:#edf2f9;--line:#dce4ef;
+  --text:#172338;--muted:#61718a;--accent:#245db4;--accent2:#176e50;
+  --code:#101a2a;--good:#176e50;--shadow:0 10px 28px rgba(31,51,79,.08)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.topbar{height:66px;position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,42px)}
+.brand{display:flex;align-items:center;gap:11px;font-weight:750;letter-spacing:-.02em}
+.brandmark{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#75aaff,#83d4b4);display:grid;place-items:center;color:#102039;font-weight:900}
+.top-actions{display:flex;gap:9px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:650}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.layout{max-width:1500px;margin:auto;display:grid;grid-template-columns:265px minmax(0,1fr);gap:30px;padding:28px clamp(14px,3vw,38px)}
+.sidebar{position:sticky;top:92px;align-self:start;max-height:calc(100vh - 112px);overflow:auto;padding:18px 12px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.side-label{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:800;padding:0 10px;margin:4px 0 10px}
+.navlink{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;color:var(--muted);font-size:13px;margin:2px 0}
+.navlink:hover,.navlink.active{background:var(--panel2);color:var(--text)}
+.navnum{font:700 11px ui-monospace,monospace;color:var(--accent);min-width:22px}
+.main{min-width:0}
+.hero{padding:28px 0 30px}
+.eyebrow{color:var(--accent);font-size:11px;letter-spacing:.15em;text-transform:uppercase;font-weight:800}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.12;letter-spacing:-.045em;margin:10px 0 12px}
+.hero p{max-width:720px;color:var(--muted);font-size:16px;margin:0}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.pill{font-size:12px;border:1px solid var(--line);padding:5px 10px;border-radius:999px;color:var(--muted);background:var(--panel)}
+.search-wrap{margin:0 0 24px;position:relative}
+.search{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px 13px 42px;color:var(--text);outline:none}
+.search:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+.search-icon{position:absolute;left:15px;top:11px;color:var(--muted);font-size:18px}
+.experiment{background:var(--panel);border:1px solid var(--line);border-radius:18px;margin:0 0 22px;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:86px}
+.exp-head{padding:22px 24px 18px;border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:flex-start}
+.exp-no{width:44px;height:44px;flex:none;border-radius:13px;background:var(--panel2);display:grid;place-items:center;color:var(--accent);font:800 13px ui-monospace,monospace}
+.exp-head h2{font-size:21px;letter-spacing:-.025em;line-height:1.3;margin:1px 0 5px}
+.exp-head p{margin:0;color:var(--muted);font-size:13px}
+.exp-body{padding:22px 24px 26px}
+.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.11em;color:var(--accent);font-weight:800;margin:22px 0 9px}
+.section-title:first-child{margin-top:0}
+.aim{background:var(--panel2);border-left:3px solid var(--accent);padding:13px 15px;border-radius:0 10px 10px 0}
+ol.algorithm{padding-left:22px;margin:8px 0;color:var(--text)}
+ol.algorithm li{padding:3px 0 3px 4px}
+.codebox{position:relative;background:var(--code);border:1px solid #26364b;border-radius:12px;overflow:hidden;margin-top:10px}
+.codebar{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid #26364b;color:#aebdd0;font-size:11px}
+.codebar span{letter-spacing:.06em;text-transform:uppercase}
+.copy{background:#1c2b41;border:1px solid #344a66;color:#eaf2ff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700}
+.copy:hover{background:#29415f}
+pre{margin:0;padding:16px;overflow:auto;max-height:620px;color:#e5edf8;font:12.5px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4;white-space:pre}
+.output{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow:auto}
+.output pre{background:transparent;color:var(--text);padding:0;max-height:none}
+.note{color:var(--muted);font-size:13px;margin:9px 0 0}
+.result{display:inline-flex;gap:7px;align-items:center;color:var(--good);font-size:13px;font-weight:700}
+.tag{font-size:11px;padding:3px 8px;border-radius:6px;background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent);font-weight:700}
+.tree{font:12px/1.55 ui-monospace,monospace;white-space:pre;overflow:auto;padding:13px;background:var(--code);color:#e5edf8;border-radius:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 13px;margin-top:12px}
+summary{cursor:pointer;font-weight:700;font-size:13px}
+details p{color:var(--muted);font-size:13px;margin-bottom:2px}
+.footer{color:var(--muted);font-size:12px;text-align:center;padding:26px 0 40px}
+.hidden{display:none!important}
+.mobile-nav{display:none}
+@media(max-width:900px){.layout{grid-template-columns:1fr;gap:16px;padding-top:16px}.sidebar{display:none}.mobile-nav{display:block;margin-bottom:16px}.mobile-nav select{width:100%;padding:11px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px}.hero{padding:20px 0}.exp-body{padding:18px}.exp-head{padding:18px}}
+@media(max-width:600px){body{font-size:14px}.topbar{height:58px;padding:0 13px}.brand{font-size:13px}.brandmark{width:30px;height:30px}.top-actions .btn{padding:7px 9px;font-size:11px}.layout{padding:12px 11px}.hero p{font-size:14px}.exp-head{gap:11px}.exp-no{width:38px;height:38px;border-radius:11px}.exp-head h2{font-size:18px}.exp-body{padding:16px 13px 20px}.grid2{grid-template-columns:1fr}.codebar{padding:8px 9px}pre{font-size:11.5px;padding:12px;max-height:540px}.section-title{margin-top:19px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#top"><span class="brandmark">ML</span><span>Machine Learning Lab</span></a>
+  <div class="top-actions">
+    <button class="btn" id="themeBtn" type="button" aria-label="Toggle light and dark theme">☼ Theme</button>
+    <button class="btn" type="button" onclick="window.print()">Print</button>
+  </div>
+</header>
+<div class="layout" id="top">
+  <aside class="sidebar" aria-label="Experiment navigation">
+    <div class="side-label">Your practicals</div>
+    <a class="navlink" href="#exp1"><span class="navnum">01</span>Simple Linear Regression</a>
+    <a class="navlink" href="#exp6"><span class="navnum">06</span>Logistic Regression</a>
+    <a class="navlink" href="#exp7"><span class="navnum">07</span>Naive Bayes</a>
+    <a class="navlink" href="#exp8"><span class="navnum">08</span>K-Nearest Neighbors</a>
+    <a class="navlink" href="#exp9"><span class="navnum">09</span>Decision Tree</a>
+    <a class="navlink" href="#exp11"><span class="navnum">11</span>Linear SVM</a>
+    <div class="side-label" style="margin-top:22px">Study tip</div>
+    <p style="padding:0 10px;color:var(--muted);font-size:12px;margin:0">Read the aim and algorithm first. Then try to understand each code block before copying it into your notebook or editor.</p>
+  </aside>
+  <main class="main">
+    <section class="hero">
+      <div class="eyebrow">Study companion · Python · Scikit-learn</div>
+      <h1>Machine Learning<br>Lab Experiments</h1>
+      <p>A mobile-friendly reference for your ML practicals. Each experiment includes its aim, step-by-step algorithm, copyable Python program and output notes.</p>
+      <div class="hero-meta"><span class="pill">6 experiments</span><span class="pill">Copy-ready code</span><span class="pill">Responsive layout</span><span class="pill">Light / dark theme</span></div>
+    </section>
+    <div class="mobile-nav"><select id="jumpSelect" aria-label="Jump to experiment"><option value="">Jump to an experiment…</option><option value="exp1">Experiment 1 — Simple Linear Regression</option><option value="exp6">Experiment 6 — Logistic Regression</option><option value="exp7">Experiment 7 — Naive Bayes</option><option value="exp8">Experiment 8 — KNN</option><option value="exp9">Experiment 9 — Decision Tree</option><option value="exp11">Experiment 11 — SVM</option></select></div>
+    <div class="search-wrap"><span class="search-icon">⌕</span><input class="search" id="search" type="search" placeholder="Search experiments, concepts or code…" aria-label="Search experiments"></div>
+
+    <article class="experiment" id="exp1" data-search="experiment 1 simple linear regression mse r2 scatter plot fitted regression line">
+      <div class="exp-head"><div class="exp-no">01</div><div><h2>Simple Linear Regression</h2><p><span class="tag">Regression</span> Predict a continuous value using one input feature.</p></div></div>
+      <div class="exp-body">
+        <div class="section-title">Aim</div>
+        <div class="aim">Implement Simple Linear Regression, evaluate the model using Mean Squared Error (MSE) and R² score, and plot the actual test data with the fitted regression line.</div>
+        <div class="section-title">Algorithm</div>
+        <ol class="algorithm">
+          <li>Start and import the required libraries: Pandas, Matplotlib and Scikit-learn.</li>
+          <li>Load the dataset and select one independent feature (X) and one target variable (y).</li>
+          <li>Split the dataset into training and testing sets.</li>
+          <li>Create a Linear Regression model and train it using the training data.</li>
+          <li>Predict the target values for the test data.</li>
+          <li>Evaluate the model using Mean Squared Error (MSE) and R² score.</li>
+          <li>Plot the actual test values as a scatter plot and draw the fitted regression line.</li>
+          <li>Add a suitable title, axis labels and legend, display the graph, and stop.</li>
+        </ol>
+        <div class="section-title">Python program</div>
+        <div class="codebox"><div class="codebar"><span>Python · scikit-learn</span><button class="copy" type="button">Copy code</button></div><pre><code>import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Example dataset: Salary_Data.csv
+df = pd.read_csv("/content/Salary_Data.csv")
+
+X = df[['YearsExperience']]
+y = df['Salary']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("Mean Squared Error:", mse)
+print("R2 Score:", r2)
+
+plt.scatter(X_test, y_test, color='blue', label='Actual Data')
+plt.plot(X_test, y_pred, color='red', label='Regression Line')
+plt.xlabel('Years of Experience')
+plt.ylabel('Salary')
+plt.title('Simple Linear Regression')
+plt.legend()
+plt.show()</code></pre></div>
+        <div class="section-title">Output</div>
+        <div class="output"><div class="result">● Expected output</div><pre>Mean Squared Error: (calculated value)
+R2 Score: (calculated value)
+
+A scatter plot showing actual test values
+and the fitted regression line.</pre></div>
+        <p class="note">Important: The original Experiment 1 program and its output screenshot were not included in the supplied images. This is a standard learning example based on the handwritten steps you shared. It assumes a CSV file named <code>Salary_Data.csv</code> with columns <code>YearsExperience</code> and <code>Salary</code>. Change the file path and column names if your lab uses a different dataset.</p>
+      </div>
+    </article>
+
+    <article class="experiment" id="exp6" data-search="experiment 6 logistic regression diabetes standard scaler classification report precision recall f1 score">
+      <div class="exp-head"><div class="exp-no">06</div><div><h2>Logistic Regression</h2><p><span class="tag">Classification</span> Compare classification performance before and after feature scaling.</p></div></div>
+      <div class="exp-body">
+        <div class="section-title">Aim</div><div class="aim">Implement Logistic Regression on the diabetes dataset and compare the classification report before and after applying StandardScaler.</div>
+        <div class="section-title">Algorithm</div>
+        <ol class="algorithm">
+          <li>Start and import the required libraries.</li><li>Load the diabetes dataset from a CSV file.</li><li>Display the first few rows and column names.</li><li>Separate the input features (X) and target variable (Outcome).</li><li>Split the dataset into training and testing sets using an 80:20 ratio.</li><li>Train a Logistic Regression model without scaling and generate predictions.</li><li>Print the classification report.</li><li>Apply StandardScaler to the training and testing features.</li><li>Train another Logistic Regression model using scaled features.</li><li>Generate predictions, print the classification report and stop.</li>
+        </ol>
+        <div class="section-title">Python program</div>
+        <div class="codebox"><div class="codebar"><span>Python · scikit-learn</span><button class="copy" type="button">Copy code</button></div><pre><code>import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report
+
+df = pd.read_csv("/content/diabetes (2).csv")
+
+print(df.head())
+print(df.columns)
+
+X = df.drop("Outcome", axis=1)
+y = df["Outcome"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+model_raw = LogisticRegression(max_iter=500)
+model_raw.fit(X_train, y_train)
+y_pred_raw = model_raw.predict(X_test)
+
+print("--------WITHOUT SCALING--------")
+print(classification_report(y_test, y_pred_raw))
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model_scaled = LogisticRegression(max_iter=500)
+model_scaled.fit(X_train_scaled, y_train)
+y_pred_scaled = model_scaled.predict(X_test_scaled)
+
+print("--------WITH SCALING--------")
+print(classification_report(y_test, y_pred_scaled))</code></pre></div>
+        <div class="section-title">Output</div>
+        <div class="grid2">
+          <div class="output"><strong>Without scaling</strong><pre>              precision recall f1-score
+0                 0.81   0.79    0.80
+1                 0.64   0.67    0.65
+
+accuracy                         0.75
+macro avg          0.73   0.73    0.73
+weighted avg       0.75   0.75    0.75</pre></div>
+          <div class="output"><strong>With scaling</strong><pre>              precision recall f1-score
+0                 0.81   0.80    0.81
+1                 0.65   0.67    0.66
+
+accuracy                         0.75
+macro avg          0.73   0.74    0.73
+weighted avg       0.76   0.75    0.75</pre></div>
+        </div>
+        <p class="note">These are the values visible in your supplied output image. Small differences may occur with a different dataset version or library version.</p>
+      </div>
+    </article>
+
+    <article class="experiment" id="exp7" data-search="experiment 7 naive bayes multinomial bernoulli count vectorizer 20newsgroups text classification">
+      <div class="exp-head"><div class="exp-no">07</div><div><h2>Naive Bayes Classifier</h2><p><span class="tag">Text classification</span> Compare Multinomial Naive Bayes and Bernoulli Naive Bayes.</p></div></div>
+      <div class="exp-body">
+        <div class="section-title">Aim</div><div class="aim">Implement Multinomial and Bernoulli Naive Bayes classifiers on selected 20 Newsgroups text data and compare their accuracy.</div>
+        <div class="section-title">Algorithm</div>
+        <ol class="algorithm">
+          <li>Start and import the required libraries.</li><li>Load the 20 Newsgroups dataset from the CSV file.</li><li>Filter the data to include the categories <code>sci.space</code> and <code>rec.autos</code>.</li><li>Separate the text data and category labels.</li><li>Split the data into training and testing sets.</li><li>Use CountVectorizer to convert text into word-count features for Multinomial Naive Bayes.</li><li>Use CountVectorizer with <code>binary=True</code> for Bernoulli Naive Bayes.</li><li>Train both models and calculate their accuracy.</li><li>Display the accuracy values and stop.</li>
+        </ol>
+        <div class="section-title">Python program</div>
+        <div class="codebox"><div class="codebar"><span>Python · scikit-learn</span><button class="copy" type="button">Copy code</button></div><pre><code>from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB, BernoulliNB
+from sklearn.metrics import accuracy_score
+import pandas as pd
+
+data = pd.read_csv(r"/content/20Newsgroups1.csv")
+filtered_data = data[
+    data['category'].isin(['sci.space', 'rec.autos'])
+]
+
+x = filtered_data['text']
+y = filtered_data['category']
+
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, test_size=0.2, random_state=9
+)
+
+vec_multi = CountVectorizer()
+X_train_m = vec_multi.fit_transform(x_train)
+X_test_m = vec_multi.transform(x_test)
+
+vec_bern = CountVectorizer(binary=True)
+X_train_b = vec_bern.fit_transform(x_train)
+X_test_b = vec_bern.transform(x_test)
+
+m_nb = MultinomialNB().fit(X_train_m, y_train)
+b_nb = BernoulliNB().fit(X_train_b, y_train)
+
+print(f"Multinomial Accuracy: {accuracy_score(y_test, m_nb.predict(X_test_m)):.2f}")
+print(f"Bernoulli Accuracy: {accuracy_score(y_test, b_nb.predict(X_test_b)):.2f}")</code></pre></div>
+        <div class="section-title">Output</div><div class="output"><pre>Multinomial Accuracy: 1.00
+Bernoulli Accuracy: 0.97</pre></div>
+        <details><summary>Understand the difference</summary><p><strong>MultinomialNB</strong> uses how many times a word occurs in a document. <strong>BernoulliNB</strong> uses whether a word is present or absent (binary features).</p></details>
+      </div>
+    </article>
+
+    <article class="experiment" id="exp8" data-search="experiment 8 knn k nearest neighbors fashion mnist accuracy k 3 7 15">
+      <div class="exp-head"><div class="exp-no">08</div><div><h2>K-Nearest Neighbors (KNN)</h2><p><span class="tag">Classification</span> Compare different values of K on Fashion-MNIST data.</p></div></div>
+      <div class="exp-body">
+        <div class="section-title">Aim</div><div class="aim">Implement the K-Nearest Neighbors algorithm using Fashion-MNIST data and compare model accuracy for different values of K.</div>
+        <div class="section-title">Algorithm</div>
+        <ol class="algorithm">
+          <li>Start and import Pandas and the required Scikit-learn modules.</li><li>Load the Fashion-MNIST training and testing CSV files.</li><li>Separate the pixel features and label column.</li><li>Use the first 5,000 training samples and first 1,000 testing samples.</li><li>Normalize pixel values by dividing by 255.</li><li>For each K value (3, 7 and 15), create a KNN classifier.</li><li>Train the model and predict the test labels.</li><li>Calculate and display the accuracy for each K value.</li><li>Stop.</li>
+        </ol>
+        <div class="section-title">Python program</div>
+        <div class="codebox"><div class="codebar"><span>Python · scikit-learn</span><button class="copy" type="button">Copy code</button></div><pre><code>import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+train_data = pd.read_csv(r"/content/fashion-mnist_train.csv")
+test_data = pd.read_csv(r"/content/fashion-mnist_test.csv")
+
+X_train = train_data.drop("label", axis=1)
+y_train = train_data["label"]
+
+X_test = test_data.drop("label", axis=1)
+y_test = test_data["label"]
+
+X_train = X_train.iloc[:5000]
+y_train = y_train.iloc[:5000]
+
+X_test = X_test.iloc[:1000]
+y_test = y_test.iloc[:1000]
+
+X_train = X_train / 255.0
+X_test = X_test / 255.0
+
+for k in [3, 7, 15]:
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train, y_train)
+
+    pred = knn.predict(X_test)
+    accuracy = accuracy_score(y_test, pred)
+
+    print(f"K={k} Accuracy: {accuracy:.2f}")</code></pre></div>
+        <div class="section-title">Output</div><div class="output"><pre>K=3 Accuracy: 0.81
+K=7 Accuracy: 0.82
+K=15 Accuracy: 0.81</pre></div>
+        <p class="note">K=7 gives the highest accuracy among the three tested values in the supplied output.</p>
+      </div>
+    </article>
+
+    <article class="experiment" id="exp9" data-search="experiment 9 decision tree classifier entropy id3 customer segmentation feature importance recency frequency spent vip">
+      <div class="exp-head"><div class="exp-no">09</div><div><h2>Decision Tree Classifier</h2><p><span class="tag">Classification</span> Segment customers using purchasing behaviour.</p></div></div>
+      <div class="exp-body">
+        <div class="section-title">Aim</div><div class="aim">Implement a Decision Tree Classifier using entropy (ID3-style splitting) to segment customers based on purchasing behaviour. Visualize the tree and analyze feature importance.</div>
+        <div class="section-title">Algorithm</div>
+        <ol class="algorithm">
+          <li>Start and import the required libraries.</li><li>Create a customer dataset containing Recency, Freq, Spent and VIP.</li><li>Convert the dataset into a Pandas DataFrame.</li><li>Separate input features (Recency, Freq, Spent) and target variable (VIP).</li><li>Create a Decision Tree Classifier using entropy as the splitting criterion.</li><li>Set the maximum depth of the tree to 3.</li><li>Train the decision tree using the input features and target values.</li><li>Plot the trained tree with feature names and filled nodes.</li><li>Display feature importance for each input feature and stop.</li>
+        </ol>
+        <div class="section-title">Python program</div>
+        <div class="codebox"><div class="codebar"><span>Python · scikit-learn</span><button class="copy" type="button">Copy code</button></div><pre><code>from sklearn.tree import DecisionTreeClassifier, plot_tree
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+data = {
+    'Recency': [10, 50, 5, 100, 20, 80],
+    'Freq': [20, 5, 30, 2, 15, 4],
+    'Spent': [500, 100, 800, 50, 400, 80],
+    'VIP': [1, 0, 1, 0, 1, 0]
+}
+
+df = pd.DataFrame(data)
+X, y = df.drop('VIP', axis=1), df['VIP']
+
+clf = DecisionTreeClassifier(
+    criterion='entropy', max_depth=3
+)
+clf.fit(X, y)
+
+plt.figure(figsize=(10, 6))
+plot_tree(clf, feature_names=X.columns, filled=True)
+plt.title("Customer Segmentation Tree")
+plt.show()
+
+print(
+    "Feature Importances:",
+    dict(zip(X.columns, clf.feature_importances_))
+)</code></pre></div>
+        <div class="section-title">Output</div>
+        <div class="tree">                 Spent &lt;= 250.0
+                 entropy = 1.0
+                 samples = 6
+                 value = [3, 3]
+                    /       \
+                   /         \
+          Left branch       Right branch
+          entropy = 0.0     entropy = 0.0
+          samples = 3       samples = 3
+          value = [3, 0]    value = [0, 3]</div>
+        <div class="output" style="margin-top:12px"><pre>Feature Importances:
+{'Recency': 0.0, 'Freq': 0.0, 'Spent': 1.0}</pre></div>
+        <p class="note">The tree splits on Spent. In this tiny example, Spent has feature importance 1.0, while Recency and Freq have importance 0.0. The sample data is manually created; it is not an Online Retail CSV dataset.</p>
+        <details><summary>How to read the tree</summary><p><strong>Spent ≤ 250</strong> is the root decision. The left leaf contains three non-VIP samples and the right leaf contains three VIP samples. Entropy 0 means each leaf is pure in this training example.</p></details>
+      </div>
+    </article>
+
+    <article class="experiment" id="exp11" data-search="experiment 11 support vector machine svm linear kernel iris setosa decision boundary margin">
+      <div class="exp-head"><div class="exp-no">11</div><div><h2>Linear Support Vector Machine (SVM)</h2><p><span class="tag">Binary classification</span> Visualize the decision boundary and margin.</p></div></div>
+      <div class="exp-body">
+        <div class="section-title">Aim</div><div class="aim">Implement a Linear Support Vector Machine (SVM) to classify the Iris dataset, visualize its decision boundary and margins, and understand how the margin influences classification.</div>
+        <div class="section-title">Algorithm</div>
+        <ol class="algorithm">
+          <li>Start and import NumPy, Pandas, Matplotlib and SVC.</li><li>Load the Iris dataset from the CSV file.</li><li>Select SepalLengthCm and SepalWidthCm as input features.</li><li>Convert the target into binary classes: Iris-setosa = 1 and other species = 0.</li><li>Create a Linear SVM classifier with C=1.0 and train it.</li><li>Plot the data points using sepal length and sepal width.</li><li>Create a grid of points and calculate the SVM decision function for each point.</li><li>Plot the decision boundary and two margin lines using contour lines.</li><li>Add axis labels and title, display the graph and stop.</li>
+        </ol>
+        <div class="section-title">Python program</div>
+        <div class="codebox"><div class="codebar"><span>Python · scikit-learn</span><button class="copy" type="button">Copy code</button></div><pre><code>import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+
+df = pd.read_csv(r"/content/Iris.csv")
+
+X = df[['SepalLengthCm', 'SepalWidthCm']].values
+y = (df['Species'] == 'Iris-setosa').astype(int).values
+
+svm = SVC(kernel='linear', C=1.0)
+svm.fit(X, y)
+
+plt.scatter(
+    X[:, 0],
+    X[:, 1],
+    c=y,
+    cmap='coolwarm',
+    edgecolors='k'
+)
+
+ax = plt.gca()
+xx, yy = np.meshgrid(
+    np.linspace(ax.get_xlim()[0], ax.get_xlim()[1], 30),
+    np.linspace(ax.get_ylim()[0], ax.get_ylim()[1], 30)
+)
+
+Z = svm.decision_function(
+    np.c_[xx.ravel(), yy.ravel()]
+).reshape(xx.shape)
+
+ax.contour(
+    xx, yy, Z,
+    levels=[-1, 0, 1],
+    linestyles=['--', '-', '--'],
+    alpha=0.7
+)
+
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Sepal Width (cm)')
+plt.title('Linear SVM: Setosa vs Others')
+plt.show()</code></pre></div>
+        <div class="section-title">Output</div>
+        <div class="output"><div class="result">● Expected graph</div><pre>Scatter plot:
+• Data points are coloured by class.
+• Solid contour (level 0) is the decision boundary.
+• Dashed contours (levels -1 and +1) are the margins.</pre></div>
+        <p class="note">The original graph image shows a solid separating line and two dashed margin lines. The CSV is expected to contain the columns <code>SepalLengthCm</code>, <code>SepalWidthCm</code> and <code>Species</code>.</p>
+        <details><summary>What does the margin mean?</summary><p>The decision boundary separates the two predicted classes. The margin is the distance between the boundary and the closest training points (support vectors). A larger margin generally helps the model generalize, while parameter C controls the trade-off between a wider margin and classification errors.</p></details>
+      </div>
+    </article>
+    <footer class="footer">Made as a personal learning reference · Verify dataset paths and column names before running each program.</footer>
+  </main>
+</div>
+<script>
+const themeBtn=document.getElementById('themeBtn');
+themeBtn.addEventListener('click',()=>{
+  const next=document.documentElement.dataset.theme==='light'?'dark':'light';
+  document.documentElement.dataset.theme=next;
+  themeBtn.textContent=next==='light'?'☾ Theme':'☼ Theme';
+  localStorage.setItem('ml-lab-theme',next);
+});
+try{
+ const saved=localStorage.getItem('ml-lab-theme');
+ if(saved){document.documentElement.dataset.theme=saved;themeBtn.textContent=saved==='light'?'☾ Theme':'☼ Theme';}
+}catch(e){}
+document.querySelectorAll('.copy').forEach(btn=>{
+ btn.addEventListener('click',async()=>{
+   const code=btn.closest('.codebox').querySelector('code').innerText;
+   try{
+     await navigator.clipboard.writeText(code);
+     btn.textContent='Copied!';
+     setTimeout(()=>btn.textContent='Copy code',1400);
+   }catch(e){
+     const area=document.createElement('textarea');area.value=code;document.body.appendChild(area);
+     area.select();document.execCommand('copy');area.remove();
+     btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy code',1400);
+   }
+ });
+});
+const search=document.getElementById('search');
+search.addEventListener('input',()=>{
+ const q=search.value.toLowerCase().trim();
+ document.querySelectorAll('.experiment').forEach(card=>{
+   card.classList.toggle('hidden',q && !(card.innerText+' '+card.dataset.search).toLowerCase().includes(q));
+ });
+});
+document.getElementById('jumpSelect').addEventListener('change',e=>{
+ if(e.target.value)document.getElementById(e.target.value).scrollIntoView({behavior:'smooth'});
+});
+const links=[...document.querySelectorAll('.navlink')];
+const sections=links.map(a=>document.querySelector(a.getAttribute('href')));
+if('IntersectionObserver' in window){
+ const observer=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{if(entry.isIntersecting){links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+entry.target.id));}});
+ },{rootMargin:'-25% 0px -65% 0px'});
+ sections.forEach(s=>s&&observer.observe(s));
+}
+</script>
+</body>
+</html>
